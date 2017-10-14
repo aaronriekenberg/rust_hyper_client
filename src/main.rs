@@ -41,18 +41,26 @@ fn main() {
 
   let mut core = Core::new().expect("error creating core");
 
-  let client = Client::new(&core.handle());
+  let handle = core.handle();
 
-  let uri = "http://raspberrypi:8081".parse().expect("unvalid uri");
+  let client = Client::new(&handle);
 
-  info!("uri = {}", uri);
+  for i in 0..10 {
+    let uri = "http://raspberrypi:8081".parse().expect("unvalid uri");
 
-  let work = client.get(uri).and_then(|res| res.body().concat2());
+    info!("i = {} uri = {}", i, uri);
+
+    handle.spawn(client.get(uri).and_then(move |res| {
+      res.body().concat2().and_then(move |body| {
+        info!("i = {} got response body {}", i, String::from_utf8_lossy(&body));
+        Ok(())
+      })
+    }).map(|_| ()).map_err(|_| ()));
+  }
 
   info!("call core.run");
 
-  match core.run(work) {
-    Ok(body) => info!("success body_string = {}", String::from_utf8_lossy(&body)),
-    Err(e) => info!("error: {}", e)
-  };
+  loop {
+    core.turn(None);
+  }
 }
