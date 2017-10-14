@@ -16,7 +16,7 @@ use std::thread;
 
 use tokio_core::reactor::Core;
 
-fn initialize_logging() -> Result<(), fern::InitError>{
+fn initialize_logging() -> Result<(), fern::InitError> {
   fern::Dispatch::new()
     .level(log::LogLevelFilter::Info)
     .format(|out, message, record| {
