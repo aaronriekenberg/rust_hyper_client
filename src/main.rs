@@ -51,6 +51,7 @@ fn main() {
     info!("i = {} uri = {}", i, uri);
 
     handle.spawn(client.get(uri).and_then(move |res| {
+      info!("i = {} got response status {}", i, res.status());
       res.body().concat2().and_then(move |body| {
         info!("i = {} got response body {}", i, String::from_utf8_lossy(&body));
         Ok(())
