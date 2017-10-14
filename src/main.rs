@@ -11,7 +11,7 @@ fn main() {
   let mut core = Core::new().expect("error creating core");
   let client = Client::new(&core.handle());
 
-  let uri = "http://localhost:8080".parse().expect("unvalid uri");
+  let uri = "http://raspberrypi:8081".parse().expect("unvalid uri");
   let work = client.get(uri).and_then(|res| {
     println!("Response: {:#?}", res);
 
@@ -22,5 +22,9 @@ fn main() {
     })
   });
 
-  core.run(work).expect("run error");
+  let result = core.run(work);
+  match result {
+    Ok(_) => println!("\nsuccess"),
+    Err(e) => println!("\nerror: {}", e)
+  };
 }
