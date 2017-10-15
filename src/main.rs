@@ -61,7 +61,7 @@ fn main() {
   let handle_clone = Rc::clone(&handle);
 
   let timer_task = wakeups.for_each(move |_| {
-    info!("in timer_task");
+    info!("calling {}", uri);
 
     handle_clone.spawn(client.get(uri.clone()).and_then(move |res| {
       let status = res.status();
