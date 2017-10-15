@@ -1,3 +1,3 @@
 # rust_hyper_client
 
-Rust http client using hyper.
+Playing with hyper, tokio_core, and tokio_timer to make async http calls in rust.
