@@ -52,9 +52,7 @@ fn main() {
 
   let timer = Timer::default();
 
-  let duration = Duration::from_millis(500);
-
-  let wakeups = timer.interval(duration);
+  let wakeups = timer.interval(Duration::from_millis(500));
 
   let handle_clone = Rc::clone(&handle);
 
