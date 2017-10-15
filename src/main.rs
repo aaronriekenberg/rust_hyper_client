@@ -44,6 +44,10 @@ fn initialize_logging() -> Result<(), fern::InitError> {
 fn main() {
   initialize_logging().expect("failed to initialize logging");
 
+  let uri = "http://raspberrypi:8081".parse::<hyper::Uri>().expect("unvalid uri");
+
+  info!("uri = {}", uri);
+
   let mut core = Core::new().expect("error creating core");
 
   let handle = Rc::new(core.handle());
@@ -59,11 +63,7 @@ fn main() {
   let timer_task = wakeups.for_each(move |_| {
     info!("in timer_task");
 
-    let uri = "http://raspberrypi:8081".parse().expect("unvalid uri");
-
-    info!("uri = {}", uri);
-
-    handle_clone.spawn(client.get(uri).and_then(move |res| {
+    handle_clone.spawn(client.get(uri.clone()).and_then(move |res| {
       let status = res.status();
       res.body().concat2().and_then(move |body| {
         info!("got response status {} body length {}",
