@@ -52,7 +52,7 @@ fn main() {
 
   let timer = Timer::default();
 
-  let duration = Duration::new(1, 0);
+  let duration = Duration::from_millis(500);
 
   let wakeups = timer.interval(duration);
 
@@ -72,11 +72,11 @@ fn main() {
               status, String::from_utf8_lossy(&body).len());
         Ok(())
       })
-    }).map_err(|_| ()));
+    }).map_err(|e| { error!("get error {}", e); () }));
 
     Ok(())
 
-  }).map_err(|_| ());
+  }).map_err(|e| { error!("timer error {}", e); () });
 
   handle.spawn(timer_task);
 
