@@ -4,6 +4,7 @@ extern crate futures;
 extern crate hyper;
 #[macro_use] extern crate log;
 extern crate tokio_core;
+extern crate tokio_timer;
 
 use chrono::prelude::Local;
 
@@ -13,8 +14,12 @@ use hyper::Client;
 
 use std::io;
 use std::thread;
+use std::sync::Arc;
+use std::time::Duration;
 
 use tokio_core::reactor::Core;
+
+use tokio_timer::Timer;
 
 fn initialize_logging() -> Result<(), fern::InitError> {
   fern::Dispatch::new()
@@ -41,24 +46,41 @@ fn main() {
 
   let mut core = Core::new().expect("error creating core");
 
-  let handle = core.handle();
+  let handle = Arc::new(core.handle());
 
   let client = Client::new(&handle);
 
-  (0..20).for_each(|i| {
+  let timer = Timer::default();
+
+  let duration = Duration::new(1, 0);
+
+  let wakeups = timer.interval(duration);
+
+  let handle_clone = Arc::clone(&handle);
+
+  let timer_task = wakeups.for_each(move |_| {
+    info!("in timer_task");
+
     let uri = "http://raspberrypi:8081".parse().expect("unvalid uri");
 
-    info!("i = {} uri = {}", i, uri);
+    info!("uri = {}", uri);
 
-    handle.spawn(client.get(uri).and_then(move |res| {
+    let local_handle = Arc::clone(&handle_clone);
+
+    local_handle.spawn(client.get(uri).and_then(move |res| {
       let status = res.status();
       res.body().concat2().and_then(move |body| {
-        info!("i = {} got response status {} body length {}",
-              i, status, String::from_utf8_lossy(&body).len());
+        info!("got response status {} body length {}",
+              status, String::from_utf8_lossy(&body).len());
         Ok(())
       })
     }).map(|_| ()).map_err(|_| ()));
-  });
+
+    Ok(())
+
+  }).map(|_| ()).map_err(|_| ());
+
+  handle.spawn(timer_task);
 
   info!("call core.run");
 
