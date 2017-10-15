@@ -45,7 +45,7 @@ fn main() {
 
   let client = Client::new(&handle);
 
-  for i in 0..10 {
+  (0..20).for_each(|i| {
     let uri = "http://raspberrypi:8081".parse().expect("unvalid uri");
 
     info!("i = {} uri = {}", i, uri);
@@ -57,7 +57,7 @@ fn main() {
         Ok(())
       })
     }).map(|_| ()).map_err(|_| ()));
-  }
+  });
 
   info!("call core.run");
 
