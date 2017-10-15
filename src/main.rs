@@ -14,7 +14,7 @@ use hyper::Client;
 
 use std::io;
 use std::thread;
-use std::sync::Arc;
+use std::rc::Rc;
 use std::time::Duration;
 
 use tokio_core::reactor::Core;
@@ -46,7 +46,7 @@ fn main() {
 
   let mut core = Core::new().expect("error creating core");
 
-  let handle = Arc::new(core.handle());
+  let handle = Rc::new(core.handle());
 
   let client = Client::new(&handle);
 
@@ -56,7 +56,7 @@ fn main() {
 
   let wakeups = timer.interval(duration);
 
-  let handle_clone = Arc::clone(&handle);
+  let handle_clone = Rc::clone(&handle);
 
   let timer_task = wakeups.for_each(move |_| {
     info!("in timer_task");
