@@ -74,11 +74,11 @@ fn main() {
               status, String::from_utf8_lossy(&body).len());
         Ok(())
       })
-    }).map(|_| ()).map_err(|_| ()));
+    }).map_err(|_| ()));
 
     Ok(())
 
-  }).map(|_| ()).map_err(|_| ());
+  }).map_err(|_| ());
 
   handle.spawn(timer_task);
 
