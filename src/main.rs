@@ -12,8 +12,7 @@ use futures::{Future, Stream};
 
 use hyper::Client;
 
-use std::io;
-use std::thread;
+use std::{env, io, thread};
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -44,9 +43,11 @@ fn initialize_logging() -> Result<(), fern::InitError> {
 fn main() {
   initialize_logging().expect("failed to initialize logging");
 
-  let uri = "http://raspberrypi:8081".parse::<hyper::Uri>().expect("unvalid uri");
+  let url_string = env::args().nth(1).expect("Usage: rust_hyper_client <url>");
 
-  info!("uri = {}", uri);
+  let url = url_string.parse::<hyper::Uri>().expect("unvalid url");
+
+  info!("url = {}", url);
 
   let mut core = Core::new().expect("error creating core");
 
@@ -61,9 +62,9 @@ fn main() {
   let handle_clone = Rc::clone(&handle);
 
   let timer_task = wakeups.for_each(move |_| {
-    info!("calling {}", uri);
+    info!("calling {}", url);
 
-    handle_clone.spawn(client.get(uri.clone()).and_then(move |res| {
+    handle_clone.spawn(client.get(url.clone()).and_then(move |res| {
       let status = res.status();
       res.body().concat2().and_then(move |body| {
         info!("got response status {} body length {}",
