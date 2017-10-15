@@ -65,9 +65,7 @@ fn main() {
 
     info!("uri = {}", uri);
 
-    let local_handle = Arc::clone(&handle_clone);
-
-    local_handle.spawn(client.get(uri).and_then(move |res| {
+    handle_clone.spawn(client.get(uri).and_then(move |res| {
       let status = res.status();
       res.body().concat2().and_then(move |body| {
         info!("got response status {} body length {}",
